@@ -3,6 +3,7 @@
 #include <argp.h>
 #include <regex.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <klib/kvec.h>
@@ -14,12 +15,15 @@ const char *doc = "Advent of Code 2017 Solver";
 const char *args_doc = "challenge[:part]";
 
 static struct argp_option options[] = {
+    {"",       'a', 0,      0, "Only display solution to part a"},
+    {"",       'b', 0,      0, "Only display solution to part b"},
     {"output", 'o', "FILE", 0, "Output to FILE instead of standard output"},
     { 0 }
 };
 
 struct arguments {
-    char *args[1];
+    int problem;
+    enum { ALL, A, B } part;
     char *output_file;
 };
 
@@ -27,14 +31,20 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
     struct arguments *arguments = state->input;
 
     switch(key) {
+    case 'a':
+        arguments->part = A;
+        break;
+    case 'b':
+        arguments->part = B;
+        break;
     case 'o':
         arguments->output_file = arg;
         break;
     case ARGP_KEY_ARG:
-        if (state->arg_num > 2)
+        if (state->arg_num > 1)
             argp_usage(state);
-        arguments->args[state->arg_num] = arg;
-    break;
+        arguments->problem = arg ? atoi(arg) : -1;
+        break;
     case ARGP_KEY_END:
         if (state->arg_num < 1)
             argp_usage(state);
@@ -96,16 +106,12 @@ solver_t solvers[50] = {
     solve_25_a, solve_25_b,
 };
 
-solver_t lookup_solver(char *arg) {
-    regex_t regex;
-    if (regcomp(&arg_regex, "^(\\d){1,2}:(\\d)?$", REG_EXTENDED))
-        return NULL;
-
-    regmatch_t matches[3];
-    if (regexec(&arg_regex, arg, 3, matches, 0))
-        return NULL;
-
-    return solvers[0];
+static int write_solution(FILE *fp, sdsvec input, solver_t solver) {
+    sds output = sdscat(solver(input), "\n");
+    size_t len = sdslen(output);
+    size_t bytes_written = fwrite(output, sizeof(output[0]), len, fp);
+    sdsfree(output);
+    return bytes_written == len ? 0 : -1;
 }
 
 int main(int argc, char *argv[]) {
@@ -116,30 +122,34 @@ int main(int argc, char *argv[]) {
         .doc = doc,
     };
 
-    struct arguments arguments = { 0 };
-    arguments.output_file = "-";
+    struct arguments args = { 0 };
+    args.output_file = "-";
+    args.part = ALL;
 
-    if (argp_parse(&argp, argc, argv, 0, 0, &arguments))
+    if (argp_parse(&argp, argc, argv, 0, 0, &args))
         return -1;
 
-    sdsvec input = read_lines(stdin);
-    solver_t solver = lookup_solver(arguments.args[0]);
-    if (solver == NULL)
+    if (args.problem < 1 || args.problem > (int)(count(solvers) / 2))
         return -1;
-
-    sds output = solver(input);
-    destroy_lines(input);
 
     FILE *fp = stdout;
-    if (strncmp(arguments.output_file, "-", 2)) {
-        if ((fp = fopen(arguments.output_file, "w")) == NULL)
+    if (strncmp(args.output_file, "-", 2)) {
+        if ((fp = fopen(args.output_file, "w")) == NULL)
             return -1;
     }
 
-    if (fwrite(output, sizeof(output[0]), sdslen(output), fp) < sdslen(output))
-        return -1;
+    sdsvec input = read_lines(stdin);
+    if (args.part == ALL || args.part == A) {
+        if (write_solution(fp, input, solvers[args.problem - 1]))
+            return -1;
+    }
 
-    sdsfree(output);
+    if (args.part == ALL || args.part == B) {
+        if (write_solution(fp, input, solvers[args.problem]))
+            return -1;
+    }
+
+    destroy_lines(input);
     fclose(fp);
     return 0;
 }
