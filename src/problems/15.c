@@ -1,6 +1,6 @@
 #include <klib/kvec.h>
 #include <sds/sds.h>
-#include "common.h"
+#include "../common.h"
 
 sds solve_15_a(sdsvec input) {
     return sdsempty();

@@ -1,6 +1,6 @@
 #include <klib/kvec.h>
 #include <sds/sds.h>
-#include "common.h"
+#include "../common.h"
 
 static sds inverse_captcha(sdsvec input, int mod_divisor) {
     sds s = sdsvec_join(input);
