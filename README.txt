@@ -9,7 +9,8 @@ can find the solutions to each problem in src/problems/. I will not release any
 solution until at least 24 hours has passed since the problems have been
 announced.
 
-I have not written the code for portability. The code compiles was compiled with gcc 7.2.0 and run on x86_64 Gnu/Linux. To compile and run the code, simply:
+I have not written the code for portability. The code compiles with gcc 7.2.0
+and has been tested on x86_64 Gnu/Linux. To compile and run the code, simply:
 
     git clone --recursive -j8 https://github.com/dallbee/Advent-of-Code.git
     make
