@@ -140,12 +140,12 @@ int main(int argc, char *argv[]) {
 
     sdsvec input = read_lines(stdin);
     if (args.part == ALL || args.part == A) {
-        if (write_solution(fp, input, solvers[args.problem - 1]))
+        if (write_solution(fp, input, solvers[2*(args.problem - 1)]))
             return -1;
     }
 
     if (args.part == ALL || args.part == B) {
-        if (write_solution(fp, input, solvers[args.problem]))
+        if (write_solution(fp, input, solvers[2*(args.problem - 1) + 1]))
             return -1;
     }
 
