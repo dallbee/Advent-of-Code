@@ -20,15 +20,41 @@ static int row_difference(sds row) {
     return large - small;
 }
 
+static int row_quotient(sds row) {
+    int count;
+    sds *tokens = sdssplitargs(row, &count);
+    int quotient = 0;
+    for (int i = 0; i < count; ++i) {
+        int a = atoi(tokens[i]);
+        for (int j = 0; j < count; ++j) {
+            if (i == j) continue;
+            int b = atoi(tokens[j]);
+            if (a % b == 0) {
+                quotient = a / b;
+                goto cleanup;
+            }
+        }
+    }
+
+cleanup:
+    sdsfreesplitres(tokens, count);
+    return quotient;
+}
+
 sds solve_02_a(sdsvec input) {
     int checksum = 0;
-    for (size_t i = 0; i < kv_size(input); ++i) {
+    size_t size = kv_size(input);
+    for (size_t i = 0; i < size; ++i) {
         checksum += row_difference(kv_A(input, i));
-        printf("checksum: %d\n", checksum);
     }
     return sdsfromlonglong(checksum);
 }
 
 sds solve_02_b(sdsvec input) {
-    return sdsempty();
+    int checksum = 0;
+    size_t size = kv_size(input);
+    for (size_t i = 0; i < size; ++i) {
+        checksum += row_quotient(kv_A(input, i));
+    }
+    return sdsfromlonglong(checksum);
 }
