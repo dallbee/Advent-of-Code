@@ -24,13 +24,12 @@ static int row_quotient(sds row) {
     int count;
     sds *tokens = sdssplitargs(row, &count);
     int quotient = 0;
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < count - 1; ++i) {
         int a = atoi(tokens[i]);
-        for (int j = 0; j < count; ++j) {
-            if (i == j) continue;
+        for (int j = i + 1; j < count; ++j) {
             int b = atoi(tokens[j]);
-            if (a % b == 0) {
-                quotient = a / b;
+            if (max(a, b) % min(a, b) == 0) {
+                quotient = max(a, b) / min(a, b);
                 goto cleanup;
             }
         }
