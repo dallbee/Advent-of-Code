@@ -9,7 +9,7 @@ deps = build/sds.o
 all: solver
 
 solver: $(sources) $(deps)
-	$(CC) $(CFLAGS) -isystemlib/ $^ -o $@
+	$(CC) $(CFLAGS) -lm -isystemlib/ $^ -o $@
 
 build/sds.o: lib/sds/sds.c
 	$(CC) $(DCFLAGS) -c $< -o $@
