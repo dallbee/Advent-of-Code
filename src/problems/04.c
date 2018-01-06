@@ -36,7 +36,6 @@ static bool valid_passphrase(sds s, bool check_anagram) {
 
             // check for anagrams
             if (check_anagram && is_anagram(tokens[i], tokens[j])) {
-                printf("anagrams: %s, %s\n", tokens[i], tokens[j]);
                 valid = false;
                 goto cleanup;
             }
