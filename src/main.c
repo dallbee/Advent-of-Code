@@ -12,7 +12,7 @@
 
 const char *argp_program_bug_address = "<dylan@allbee.org>";
 const char *doc = "Advent of Code 2017 Solver";
-const char *args_doc = "challenge[:part]";
+const char *args_doc = "challenge";
 
 static struct argp_option options[] = {
     {"",       'a', 0,      0, "Only display solution to part a"},
