@@ -72,8 +72,8 @@ sdsvec read_lines(FILE *stream) {
 }
 
 void destroy_lines(sdsvec input) {
-    for (size_t i = kv_size(input); i != 0; --i) {
-        sdsfree(kv_A(input, i));
+    while (kv_size(input)) {
+        sdsfree(kv_pop(input));
     }
     kv_destroy(input);
 }
@@ -153,5 +153,3 @@ int main(int argc, char *argv[]) {
     fclose(fp);
     return 0;
 }
-
-
