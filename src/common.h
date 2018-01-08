@@ -1,11 +1,12 @@
 #pragma once
 
+#include <klib/kvec.h>
+#include <sds/sds.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
-#include <klib/kvec.h>
-#include <sds/sds.h>
 
 // Math definitions
 #define abs(a) (((a) > 0) ? (a) : -(a))
@@ -13,7 +14,7 @@
 #define max(a, b) (((a) < (b)) ? (b) : (a))
 
 // Array count
-#define count(array) (sizeof(array) / sizeof(array[0]))
+#define count(array) (sizeof(array) / sizeof((array)[0]))
 
 // Performance macros
 #define ALWAYS_INLINE inline __attribute__((always_inline))

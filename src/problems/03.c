@@ -1,47 +1,52 @@
-#include <stdlib.h>
+#include "../common.h"
 #include <klib/kvec.h>
 #include <sds/sds.h>
-#include <string.h>
+#include <stdlib.h>
 #include <tgmath.h>
-#include "../common.h"
+
+static inline int nearest_perfect_square(int num) {
+  int i = 0;
+  while (i * i < num) {
+    i += 2;
+  }
+  return i;
+}
 
 sds solve_03_a(sdsvec input) {
-    int num = atoi(kv_A(input, 0));
+  int num = atoi(kv_A(input, 0));
+  int i = nearest_perfect_square(num);
 
-    // Reach nearest perfect square
-    int i;
-    for (i = 1; i*i < num; i += 2);
-
-    // Find distances based on pivots
-    int d;
-    for (int j = 0; j < 4; ++j) {
-        int pivot = i*i - j*(i-1);
-        d = abs(pivot - num);
-        if (d <= (i-1) / 2) {
-            return sdsfromlonglong(i-1-d);
-        }
+  // Find distances based on pivots
+  int d;
+  for (int j = 0; j < 4; ++j) {
+    int pivot = i * i - j * (i - 1);
+    d = abs(pivot - num);
+    if (d <= (i - 1) / 2) {
+      return sdsfromlonglong(i - 1 - d);
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
-void update_grid(size_t n, uint64_t grid[n][n], size_t* pos, int* vec, int val) {
-    grid[pos[0]][pos[1]] = val;
-    pos[0] += vec[0];
-    pos[1] += vec[1];
+void update_grid(size_t n, uint64_t grid[n][n], size_t *pos, int const *vec,
+                 int val) {
+  grid[pos[0]][pos[1]] = val;
+  pos[0] += vec[0];
+  pos[1] += vec[1];
 }
 
-uint64_t sum_grid(size_t n, uint64_t grid[n][n], size_t* pos) {
-    uint64_t sum = 0;
-    sum += grid[pos[0] + 1][pos[1] - 1];
-    sum += grid[pos[0] + 1][pos[1] + 0];
-    sum += grid[pos[0] + 1][pos[1] + 1];
-    sum += grid[pos[0] + 0][pos[1] - 1];
-    sum += grid[pos[0] + 0][pos[1] + 1];
-    sum += grid[pos[0] - 1][pos[1] - 1];
-    sum += grid[pos[0] - 1][pos[1] + 0];
-    sum += grid[pos[0] - 1][pos[1] + 1];
-    return sum;
+uint64_t sum_grid(size_t n, uint64_t grid[n][n], size_t const *pos) {
+  uint64_t sum = 0;
+  sum += grid[pos[0] + 1][pos[1] - 1];
+  sum += grid[pos[0] + 1][pos[1] + 0];
+  sum += grid[pos[0] + 1][pos[1] + 1];
+  sum += grid[pos[0] + 0][pos[1] - 1];
+  sum += grid[pos[0] + 0][pos[1] + 1];
+  sum += grid[pos[0] - 1][pos[1] - 1];
+  sum += grid[pos[0] - 1][pos[1] + 0];
+  sum += grid[pos[0] - 1][pos[1] + 1];
+  return sum;
 }
 
 /**
@@ -50,41 +55,41 @@ uint64_t sum_grid(size_t n, uint64_t grid[n][n], size_t* pos) {
  *  x = 10*log(y/10)
  */
 sds solve_03_b(sdsvec input) {
-    int num = atoi(kv_A(input, 0));
+  int num = atoi(kv_A(input, 0));
 
-    long double squares = 10 * log(num / 10.0);
-    uint64_t length = (uint64_t) ceil(sqrt(squares));
+  long double squares = 10 * log(num / 10.0);
+  uint64_t length = (uint64_t)ceil(sqrt(squares));
 
-    // Make sure we're at an even square
-    length += length % 2;
+  // Make sure we're at an even square
+  length += length % 2;
 
-    size_t pos[2] = { length/2, length/2 };
-    size_t dir = 0;
-    int seq[4][2] = {
-        {  0,  1 },
-        {  1,  0 },
-        {  0, -1 },
-        { -1,  0 },
-    };
+  size_t pos[2] = {length / 2, length / 2};
+  size_t dir = 0;
+  int seq[4][2] = {
+      {0, 1},
+      {1, 0},
+      {0, -1},
+      {-1, 0},
+  };
 
-    uint64_t grid[length][length];
-    memset(grid, 0, length * length * sizeof(**grid));
+  uint64_t grid[length][length];
+  memset(grid, 0, length * length * sizeof(**grid));
 
-    // initialize center square
-    update_grid(length, grid, pos, seq[dir++], 1);
+  // initialize center square
+  update_grid(length, grid, pos, seq[dir++], 1);
 
-    int64_t sum = 0;
-    while (sum < num) {
-        sum = sum_grid(length, grid, pos);
+  int64_t sum = 0;
+  while (sum < num) {
+    sum = sum_grid(length, grid, pos);
 
-        // attempt to turn
-        int* vec = seq[(dir + 1) % 4];
-        if (grid[pos[0] + vec[0]][pos[1] + vec[1]] == 0) {
-            dir = (dir + 1) % 4;
-        }
-
-        update_grid(length, grid, pos, seq[dir], sum);
+    // attempt to turn
+    int *vec = seq[(dir + 1) % 4];
+    if (grid[pos[0] + vec[0]][pos[1] + vec[1]] == 0) {
+      dir = (dir + 1) % 4;
     }
 
-    return sdsfromlonglong(sum);
+    update_grid(length, grid, pos, seq[dir], sum);
+  }
+
+  return sdsfromlonglong(sum);
 }
